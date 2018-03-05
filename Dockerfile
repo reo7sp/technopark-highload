@@ -19,7 +19,9 @@ RUN apt-get update
 
 RUN apt-get install -y apache2-utils python git
 
-RUN mkdir -p /var/park && cd /var/park && git clone https://github.com/init/http-test-suite.git
+RUN mkdir -p /var/park && cd /var/park && git clone https://github.com/init/http-test-suite.git && \
+	mkdir -p /var/www/html && rm -rf /var/www/html && mkdir -p /var/www && \
+	cp -r /var/park/http-test-suite /var/www/html
 
 ENV WORK /highload_server
 WORKDIR $WORK/
