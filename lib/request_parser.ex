@@ -1,7 +1,9 @@
 defmodule Park.RequestParser do
   def parse_first_line(s) do
-    [method, path, _protocol] = String.split(s)
-    {method, path}
+    case String.split(s) do
+      [method, path, _protocol] -> {method, path}
+      [] -> {"", ""}
+    end
   end
 
   def check(method, path) do

@@ -1,10 +1,11 @@
 require Logger
 
 defmodule Park.Server do
-  def start(port, file_root) do
+  def start(config) do
+    port = String.to_integer(config[:listen])
     {:ok, server_socket} = :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
     Logger.info "Accepting connections on port #{port}"
-    loop(server_socket, file_root: file_root)
+    loop(server_socket, config)
   end
 
   defp loop(server_socket, opts) do
@@ -16,12 +17,15 @@ defmodule Park.Server do
   end
 
   defp serve(socket, opts) do
-    {:ok, line} = :gen_tcp.recv(socket, 0)
-    {method, path} = Park.RequestParser.parse_first_line(line)
-    processed_params = Park.RequestParser.check(method, path)
+    case :gen_tcp.recv(socket, 0) do
+      {:ok, line} ->
+        {method, path} = Park.RequestParser.parse_first_line(line)
+        processed_params = Park.RequestParser.check(method, path)
 
-    Park.Handler.handle(socket, processed_params, opts)
+        Park.Handler.handle(socket, processed_params, opts)
 
-    :gen_tcp.close(socket)
+        :gen_tcp.close(socket)
+      _ -> nil
+    end
   end
 end
