@@ -15,6 +15,6 @@ defmodule Park.Mime do
   end
 
   defp extentsion(path) do
-    path |> String.split(".", parts: 2) |> List.last
+    path |> String.split(".") |> List.last
   end
 end

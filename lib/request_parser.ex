@@ -40,7 +40,7 @@ defmodule Park.RequestParser do
     cond do
       String.contains?(path, "../") -> :error
       true -> 
-        decoded_path = path |> resolve_path_index |> URI.decode 
+        decoded_path = path |> remove_query |> resolve_path_index |> Park.Utils.remove_preceding_slash |> URI.decode 
         {:ok, decoded_path}
     end
   end
@@ -51,5 +51,9 @@ defmodule Park.RequestParser do
     else
       path
     end
+  end
+
+  defp remove_query(path) do
+    path |> String.split("?", parts: 2) |> List.first
   end
 end

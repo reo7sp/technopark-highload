@@ -11,7 +11,7 @@ defmodule Park.Server do
   defp loop(server_socket, opts) do
     {:ok, socket} = :gen_tcp.accept(server_socket)
     {:ok, pid} = Task.Supervisor.start_child(Park.Server.TaskSupervisor, fn -> serve(socket, opts) end)
-    :ok = :gen_tcp.controlling_process(socket, pid)
+    :gen_tcp.controlling_process(socket, pid)
 
     loop(server_socket, opts)
   end
@@ -21,6 +21,7 @@ defmodule Park.Server do
       {:ok, line} ->
         {method, path} = Park.RequestParser.parse_first_line(line)
         processed_params = Park.RequestParser.check(method, path)
+        IO.inspect processed_params
 
         Park.Handler.handle(socket, processed_params, opts)
 
