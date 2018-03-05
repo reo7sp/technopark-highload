@@ -21,7 +21,6 @@ defmodule Park.Server do
       {:ok, line} ->
         {method, path} = Park.RequestParser.parse_first_line(line)
         processed_params = Park.RequestParser.check(method, path)
-        IO.inspect processed_params
 
         Park.Handler.handle(socket, processed_params, opts)
 
