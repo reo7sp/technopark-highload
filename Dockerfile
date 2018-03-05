@@ -29,5 +29,7 @@ COPY core-counter.py .
 RUN yes | mix deps.get
 EXPOSE 80
 
+RUN mix local.rebar --force
+
 CMD ELIXIR_CPU_CORES=`python core-counter.py` && elixir --erl "+S $ELIXIR_CPU_CORES" -S mix run --no-halt
 #&& ab -n 9000 -c 100 localhost/httptest/dir2/page.html
