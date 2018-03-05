@@ -17,10 +17,13 @@ RUN set -xe \
 
 RUN apt-get update
 
-RUN apt-get install -y apache2-utils python
+RUN apt-get install -y apache2-utils python git
+
+RUN mkdir -p /var/park && cd /var/park && git clone https://github.com/init/http-test-suite.git
 
 ENV WORK /highload_server
 WORKDIR $WORK/
+
 
 ADD . .
 
@@ -31,5 +34,6 @@ EXPOSE 80
 
 RUN mix local.rebar --force
 
+RUN cp httpd.conf /etc/httpd.conf
+
 CMD ELIXIR_CPU_CORES=`python core-counter.py` && elixir --erl "+S $ELIXIR_CPU_CORES" -S mix run --no-halt
-#&& ab -n 9000 -c 100 localhost/httptest/dir2/page.html
