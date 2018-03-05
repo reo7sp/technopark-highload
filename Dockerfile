@@ -38,4 +38,5 @@ RUN mix local.rebar --force
 
 RUN cp httpd.conf /etc/httpd.conf
 
+RUN ELIXIR_CPU_CORES=`python core-counter.py` && elixir --erl "+S $ELIXIR_CPU_CORES" -S mix compile
 CMD ELIXIR_CPU_CORES=`python core-counter.py` && elixir --erl "+S $ELIXIR_CPU_CORES" -S mix run --no-halt
