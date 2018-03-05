@@ -22,7 +22,7 @@ RUN apt-get install -y apache2-utils python
 ENV WORK /highload_server
 WORKDIR $WORK/
 
-ADD ./elixir_app .
+ADD . .
 
 COPY core-counter.py .
 
