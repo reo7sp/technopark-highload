@@ -1,10 +1,10 @@
 defmodule Park.ResponseMaker do
   def make_error(error_code) do
-    first_headers(error_code, error_code) ++ new_line |> Enum.join("\r\n")
+    first_headers(error_code, error_code) ++ blank_line() |> Enum.join("\r\n")
   end
 
   def make_file_response(file_size, mime_type) do
-    first_headers(200, "200") ++ file_headers(file_size, mime_type) ++ new_line |> Enum.join("\r\n")
+    first_headers(200, "200") ++ file_headers(file_size, mime_type) ++ blank_line() |> Enum.join("\r\n")
   end
 
   defp first_headers(code, status) do
@@ -15,13 +15,13 @@ defmodule Park.ResponseMaker do
     [start, date, server, connection]
   end
 
-  defp file_headers(length, type) do
-    content_length = "Content-Length: #{content_length}"
-    content_type = "Content-Type: #{content_type}"
-    [content_length, content_type]
+  defp file_headers(size, type) do
+    content_size = "Content-Length: #{size}"
+    content_type = "Content-Type: #{type}"
+    [content_size, content_type]
   end
 
-  defp new_line do
+  defp blank_line do
     ["", ""]
   end
 end

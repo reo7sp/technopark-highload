@@ -4,9 +4,9 @@ defmodule Park.Handler do
     %{size: file_length} = File.stat!(file_path)
     mime_type = Park.Mime.detect(file_path)
 
-    :gen_tcp.send(Park.ResponseMaker.make_file_response(file_length, mime_type))
+    :gen_tcp.send(socket, Park.ResponseMaker.make_file_response(file_length, mime_type))
   rescue
-    Park.ResponseMaker.make_error(404)
+    _ -> :gen_tcp.send(socket, Park.ResponseMaker.make_error(404))
   end
 
   def handle(socket, {:ok, :GET, path}, opts) do
@@ -14,20 +14,21 @@ defmodule Park.Handler do
     %{size: file_length} = File.stat!(file_path)
     mime_type = Park.Mime.detect(file_path)
 
-    :gen_tcp.send(Park.ResponseMaker.make_file_response(file_length, mime_type))
+    :gen_tcp.send(socket, Park.ResponseMaker.make_file_response(file_length, mime_type))
 
     file_path |>
       File.stream!([], 16384) |> 
-      Stream.each(fn (block) -> :gen_tcp.send(socket, block) end)
+      Stream.each(fn (block) -> :gen_tcp.send(socket, block) end) |>
+      Stream.run
   rescue
-    Park.ResponseMaker.make_error(404)
+    _ -> :gen_tcp.send(socket, Park.ResponseMaker.make_error(404))
   end
 
   def handle(socket, {:error, :method}, _) do
-    Park.ResponseMaker.make_error(405)
+    :gen_tcp.send(socket, Park.ResponseMaker.make_error(405))
   end
 
   def handle(socket, {:error, :path}, _) do
-    Park.ResponseMaker.make_error(404)
+    :gen_tcp.send(socket, Park.ResponseMaker.make_error(404))
   end
 end

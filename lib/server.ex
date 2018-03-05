@@ -1,7 +1,10 @@
-defmodule Park.Server
+require Logger
+
+defmodule Park.Server do
   def start(port, file_root) do
-    {:ok, server_socket} = :gen_tcp.accept(port, [:binary, packet: :line])
-    loop(server_socket, [file_root: file_root])
+    {:ok, server_socket} = :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+    Logger.info "Accepting connections on port #{port}"
+    loop(server_socket, file_root: file_root)
   end
 
   defp loop(server_socket, opts) do
@@ -9,7 +12,7 @@ defmodule Park.Server
     {:ok, pid} = Task.Supervisor.start_child(Park.Server.TaskSupervisor, fn -> serve(socket, opts) end)
     :ok = :gen_tcp.controlling_process(socket, pid)
 
-    loop(server_socket)
+    loop(server_socket, opts)
   end
 
   defp serve(socket, opts) do
@@ -17,7 +20,7 @@ defmodule Park.Server
     {method, path} = Park.RequestParser.parse_first_line(line)
     processed_params = Park.RequestParser.check(method, path)
 
-    Path.Handler.handle(socket, processed_params)
+    Park.Handler.handle(socket, processed_params, opts)
 
     :gen_tcp.close(socket)
   end
